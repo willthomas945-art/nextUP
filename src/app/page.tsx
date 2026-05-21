@@ -71,36 +71,21 @@ function FeedSlide({ post }: { post: Post }) {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
 
       <div className="absolute right-4 bottom-32 flex flex-col items-center gap-6 z-20">
-        <Link
-          href="/boost"
-          onClick={(e) => e.stopPropagation()}
-          className="flex flex-col items-center gap-1 active:scale-90 transition-transform"
-        >
+        <Link href="/boost" onClick={(e) => e.stopPropagation()} className="flex flex-col items-center gap-1 active:scale-90 transition-transform">
           <span className="w-14 h-14 bg-tertiary-container rounded-full flex items-center justify-center shadow-lg border border-on-tertiary-container/30">
             <svg className="w-7 h-7 text-on-tertiary-container fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           </span>
           <span className="label-caps text-[10px]">BOOST</span>
         </Link>
-        <button
-          onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
-          className="flex flex-col items-center gap-1 active:scale-90 transition-transform"
-        >
+        <button onClick={(e) => { e.stopPropagation(); setLiked(!liked); }} className="flex flex-col items-center gap-1 active:scale-90 transition-transform">
           <svg className={`w-8 h-8 transition-colors ${liked ? "fill-[#fa5c1b] stroke-[#fa5c1b]" : "stroke-white fill-none"}`} viewBox="0 0 24 24" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           <span className="label-caps text-[10px]">{post.likes}</span>
         </button>
-        <Link
-          href="/comments"
-          onClick={(e) => e.stopPropagation()}
-          className="flex flex-col items-center gap-1 active:scale-90 transition-transform"
-        >
+        <Link href="/comments" onClick={(e) => e.stopPropagation()} className="flex flex-col items-center gap-1 active:scale-90 transition-transform">
           <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
           <span className="label-caps text-[10px]">{post.comments}</span>
         </Link>
-        <Link
-          href="/share"
-          onClick={(e) => e.stopPropagation()}
-          className="flex flex-col items-center gap-1 active:scale-90 transition-transform"
-        >
+        <Link href="/share" onClick={(e) => e.stopPropagation()} className="flex flex-col items-center gap-1 active:scale-90 transition-transform">
           <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
           <span className="label-caps text-[10px]">SHARE</span>
         </Link>
@@ -108,28 +93,14 @@ function FeedSlide({ post }: { post: Post }) {
 
       <div className="absolute left-5 bottom-32 max-w-[78%] z-20" onClick={(e) => e.stopPropagation()}>
         <div className="flex gap-2 mb-3">
-          {post.tags.map((t) => (
-            <span key={t} className="label-caps text-[10px] bg-primary/50 backdrop-blur-md px-2 py-1 rounded">{t}</span>
-          ))}
+          {post.tags.map((t) => (<span key={t} className="label-caps text-[10px] bg-primary/50 backdrop-blur-md px-2 py-1 rounded">{t}</span>))}
         </div>
         <div className="flex items-center gap-3 mb-3">
           <Link href="/profile" className="block">
-            <span
-              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 border-primary-fixed-dim"
-              style={{ background: post.artist.avatarBg, color: post.artist.avatarFg }}
-            >
-              {post.artist.initials}
-            </span>
+            <span className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 border-primary-fixed-dim" style={{ background: post.artist.avatarBg, color: post.artist.avatarFg }}>{post.artist.initials}</span>
           </Link>
           <Link href="/profile" className="font-display text-lg font-bold">@{post.artist.handle}</Link>
-          <button
-            onClick={(e) => { e.stopPropagation(); setFollowing(!following); }}
-            className={`label-caps text-[10px] px-3 py-1 rounded-full border transition-all ${
-              following
-                ? "bg-tertiary-container border-on-tertiary-container/50 text-on-tertiary-container"
-                : "bg-white/10 backdrop-blur-md border-white/30 text-white"
-            }`}
-          >
+          <button onClick={(e) => { e.stopPropagation(); setFollowing(!following); }} className={`label-caps text-[10px] px-3 py-1 rounded-full border transition-all ${following ? "bg-tertiary-container border-on-tertiary-container/50 text-on-tertiary-container" : "bg-white/10 backdrop-blur-md border-white/30 text-white"}`}>
             {following ? "FOLLOWING" : "FOLLOW"}
           </button>
         </div>
@@ -154,8 +125,7 @@ function spawnHeart(x: number, y: number) {
   const heart = document.createElement("div");
   heart.className = "heart-pop";
   heart.style.cssText = `position:fixed;left:${x - 32}px;top:${y - 32}px;font-size:64px;color:#fa5c1b;z-index:100;pointer-events:none;`;
-  heart.innerHTML = "♥";
+  heart.innerHTML = "&#9829;";
   document.body.appendChild(heart);
   setTimeout(() => heart.remove(), 600);
 }
-                                                                                                                                                                                                                                                                                                                       

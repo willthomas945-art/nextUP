@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -35,13 +35,9 @@ function CameraView({ onCaptured }: { onCaptured: () => void }) {
 
   return (
     <main className="fixed inset-0 bg-black overflow-hidden text-white">
-      {/* Viewfinder (gradient placeholder for the actual camera feed) */}
-      <div className="absolute inset-0" style={{ background: facing === "front"
-        ? "radial-gradient(circle at 50% 30%, #501500, #1f1b10 70%, #000)"
-        : "radial-gradient(circle at 50% 70%, #122a47, #00152e 70%, #000)" }} />
+      <div className="absolute inset-0" style={{ background: facing === "front" ? "radial-gradient(circle at 50% 30%, #501500, #1f1b10 70%, #000)" : "radial-gradient(circle at 50% 70%, #122a47, #00152e 70%, #000)" }} />
       <div className="grain" />
 
-      {/* Top bar */}
       <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-5 pt-5 pb-3">
         <Link href="/" className="w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center" aria-label="Close">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -52,7 +48,6 @@ function CameraView({ onCaptured }: { onCaptured: () => void }) {
         </button>
       </header>
 
-      {/* Side controls */}
       <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-5">
         <button onClick={() => setFacing(facing === "front" ? "back" : "front")} className="w-12 h-12 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center active:scale-90 transition-transform" aria-label="Flip camera">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
@@ -66,25 +61,21 @@ function CameraView({ onCaptured }: { onCaptured: () => void }) {
         </button>
       </div>
 
-      {/* Duration tab */}
-      {recording && (
+      {recording ? (
         <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-error px-3 py-1 rounded-full flex items-center gap-2">
           <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
           <span className="label-caps text-[11px]">REC · {String(Math.floor(elapsed / 60)).padStart(2, "0")}:{String(elapsed % 60).padStart(2, "0")}</span>
         </div>
-      )}
+      ) : null}
 
-      {/* Duration mode tabs */}
       <div className="absolute bottom-44 left-0 right-0 flex justify-center gap-6">
         {["15s", "60s", "10min", "PHOTO"].map((m, i) => (
           <button key={m} className={`label-caps text-[11px] ${i === 0 ? "text-white border-b-2 border-on-tertiary-container pb-1" : "text-white/60"}`}>{m}</button>
         ))}
       </div>
 
-      {/* Bottom control rail */}
       <div className="absolute bottom-0 left-0 right-0 pb-8 pt-4 px-6 z-30 bg-gradient-to-t from-black/70 to-transparent">
         <div className="flex items-end justify-between">
-          {/* Camera roll thumb */}
           <button onClick={pickFromRoll} className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
             <div className="w-14 h-14 rounded-xl border-2 border-white/60 bg-gradient-to-br from-secondary to-tertiary flex items-center justify-center overflow-hidden">
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -92,16 +83,87 @@ function CameraView({ onCaptured }: { onCaptured: () => void }) {
             <span className="label-caps text-[9px]">CAMERA ROLL</span>
           </button>
 
-          {/* Record button */}
-          <button
-            onClick={() => recording ? stopAndContinue() : setRecording(true)}
-            className="relative active:scale-95 transition-transform"
-            aria-label={recording ? "Stop" : "Record"}
-          >
+          <button onClick={() => recording ? stopAndContinue() : setRecording(true)} className="relative active:scale-95 transition-transform" aria-label={recording ? "Stop" : "Record"}>
             <span className={`absolute inset-0 rounded-full ${recording ? "border-4 border-error" : "border-4 border-white"} -m-2`} />
             <span className={`block transition-all ${recording ? "w-10 h-10 rounded-lg bg-error" : "w-20 h-20 rounded-full bg-error"}`} />
           </button>
 
-          {/* Sound picker */}
           <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-            <div className="w-14
+            <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <span className="label-caps text-[9px]">SOUNDS</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function DetailsView({ onBack, onPost }: { onBack: () => void; onPost: () => void }) {
+  return (
+    <main className="min-h-screen bg-surface pb-32">
+      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-lg border-b border-outline-variant/20">
+        <div className="flex items-center gap-3 px-5 py-4 max-w-md mx-auto">
+          <button onClick={onBack} className="text-primary"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+          <h1 className="font-display font-bold text-xl text-primary">Finalize post</h1>
+        </div>
+      </header>
+
+      <div className="max-w-md mx-auto px-5 pt-6">
+        <div className="flex gap-4 mb-6">
+          <div className="w-24 h-32 rounded-lg bg-gradient-to-br from-primary-container to-tertiary-container flex items-center justify-center shrink-0">
+            <svg className="w-8 h-8 text-white/70" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div className="flex-1">
+            <div className="label-caps text-[10px] text-secondary mb-2">CAPTION</div>
+            <textarea rows={5} placeholder="Tell your story..." className="w-full border border-outline-variant/40 p-3 rounded-lg outline-none focus:border-primary text-[15px] bg-white" />
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <div>
+            <label className="label-caps text-[10px] text-secondary mb-2 block">GENRE</label>
+            <select className="w-full border border-outline-variant/40 p-3 rounded-lg outline-none focus:border-primary text-[15px] bg-white">
+              <option>Select a genre</option>
+              <option>Jazz</option>
+              <option>Neo-Soul</option>
+              <option>Indie</option>
+              <option>Folk</option>
+              <option>Electronic</option>
+              <option>Lo-Fi</option>
+              <option>Ambient</option>
+              <option>Hip Hop</option>
+              <option>Rock</option>
+            </select>
+          </div>
+          <div>
+            <label className="label-caps text-[10px] text-secondary mb-2 block">TAGS</label>
+            <input type="text" placeholder="#live #acoustic" className="w-full border border-outline-variant/40 p-3 rounded-lg outline-none focus:border-primary text-[15px] bg-white" />
+          </div>
+          <button onClick={onPost} className="w-full bg-primary text-white label-caps py-4 rounded-full active:scale-[0.98] transition-transform mt-4">
+            POST NOW
+          </button>
+          <button onClick={onBack} className="w-full label-caps text-on-surface-variant py-3">
+            BACK TO CAMERA
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function SuccessView({ onDone }: { onDone: () => void }) {
+  return (
+    <main className="min-h-screen bg-surface flex flex-col items-center justify-center px-8 text-center">
+      <div className="w-20 h-20 mx-auto mb-6 bg-tertiary-fixed-dim rounded-full flex items-center justify-center">
+        <svg className="w-12 h-12 text-on-tertiary-container" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h2 className="font-display font-bold text-3xl text-primary mb-2">You're live</h2>
+      <p className="text-on-surface-variant mb-8 max-w-xs">Your post is now in the feed for everyone matching your genre.</p>
+      <button onClick={onDone} className="bg-primary text-white label-caps px-8 py-3 rounded-full active:scale-95 transition-transform">
+        SEE IT ON THE FEED
+      </button>
+    </main>
+  );
+}
