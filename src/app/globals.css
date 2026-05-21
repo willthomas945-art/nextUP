@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+
+html, body {
+  background: #fff8f5;
+  color: #1e1b18;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { font-family: var(--font-body), system-ui, sans-serif; }
+
+.font-display { font-family: var(--font-display), Georgia, serif; letter-spacing: -0.01em; }
+.font-mono { font-family: var(--font-mono), ui-monospace, monospace; }
+
+.label-caps {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+.feed-snap { scroll-snap-type: y mandatory; overflow-y: scroll; scrollbar-width: none; }
+.feed-snap::-webkit-scrollbar { display: none; }
+.feed-slide { scroll-snap-align: start; }
+
+@keyframes heart-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 1; }
+  100% { transform: scale(1.5) rotate(0) translateY(-100px); opacity: 0; }
+}
+.heart-pop { animation: heart-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }

@@ -1,0 +1,50 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  theme: {
+    extend: {
+      colors: {
+        "primary-fixed-dim": "#b1c8ec",
+        secondary: "#645e50",
+        surface: "#fff8f5",
+        outline: "#74777e",
+        "surface-container": "#f5ece7",
+        "surface-container-highest": "#e9e1dc",
+        background: "#fff8f5",
+        "surface-container-lowest": "#ffffff",
+        "surface-dim": "#e1d8d4",
+        tertiary: "#2d0800",
+        "tertiary-fixed": "#ffdbcf",
+        "on-tertiary-fixed": "#390c00",
+        "surface-variant": "#e9e1dc",
+        "on-tertiary-fixed-variant": "#832700",
+        "surface-container-low": "#fbf2ed",
+        "primary-fixed": "#d4e3ff",
+        "surface-container-high": "#efe6e2",
+        "on-primary-container": "#7c92b4",
+        "on-primary-fixed": "#011c38",
+        "primary-container": "#122a47",
+        "on-tertiary-container": "#fa5c1b",
+        "secondary-fixed": "#eae2d0",
+        error: "#ba1a1a",
+        "tertiary-fixed-dim": "#ffb59c",
+        "on-background": "#1e1b18",
+        "on-surface": "#1e1b18",
+        primary: "#00152e",
+        "on-surface-variant": "#44474d",
+        "secondary-container": "#eae2d0",
+        "tertiary-container": "#501500",
+        "outline-variant": "#c4c6ce",
+      },
+      borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "9999px" },
+      fontFamily: {
+        display: ["var(--font-display)", "Georgia", "serif"],
+        body: ["var(--font-body)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+    },
+  },
+  plugins: [],
+};
+export default config;
