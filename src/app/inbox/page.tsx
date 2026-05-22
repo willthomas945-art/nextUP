@@ -40,8 +40,15 @@ export default function InboxPage() {
   const [tab, setTab] = useState<Tab>("all");
   const filtered = events.filter(tabFilter[tab]);
 
+  function destFor(e: Event): string {
+    if (e.type === "follow") return `/artist/${e.handle}`;
+    if (e.type === "gift") return `/artist/${e.handle}`;
+    if (e.type === "mention" || e.type === "comment") return `/comments`;
+    return `/artist/${e.handle}`;
+  }
+
   return (
-    <main className="min-h-screen bg-surface pb-32">
+    <main className="min-h-screen bg-surface pb-32 animate-fade-in">
       <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-lg border-b border-outline-variant/20">
         <div className="flex items-center gap-3 px-5 py-4 max-w-md mx-auto">
           <Link href="/" className="text-primary"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></Link>
@@ -53,43 +60,27 @@ export default function InboxPage() {
         </div>
         <div className="flex justify-around border-t border-outline-variant/10 max-w-md mx-auto">
           {(["all", "mentions", "follows", "gifts"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`label-caps text-[10px] py-3 px-2 transition-colors ${
-                tab === t ? "text-on-tertiary-container border-b-2 border-on-tertiary-container" : "text-on-surface-variant"
-              }`}
-            >{t.toUpperCase()}</button>
+            <button key={t} onClick={() => setTab(t)} className={`label-caps text-[10px] py-3 px-2 transition-colors ${tab === t ? "text-on-tertiary-container border-b-2 border-on-tertiary-container" : "text-on-surface-variant"}`}>{t.toUpperCase()}</button>
           ))}
         </div>
       </header>
 
       <div className="max-w-md mx-auto px-5 pt-2">
         {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <h2 className="font-display font-bold text-xl text-primary mb-2">Quiet here</h2>
-            <p className="text-on-surface-variant">No activity in this tab yet.</p>
-          </div>
+          <div className="text-center py-20"><h2 className="font-display font-bold text-xl text-primary mb-2">Quiet here</h2><p className="text-on-surface-variant">No activity in this tab yet.</p></div>
         ) : (
           <div>
             {filtered.map((e, i) => (
-              <Link key={i} href={e.type === "follow" ? "/profile" : e.type === "gift" ? "/boost" : "/comments"} className="flex items-start gap-3 py-3 px-2 hover:bg-surface-container-low rounded-lg transition-colors">
-                <div className="relative shrink-0">
+              <Link key={i} href={destFor(e)} className="flex items-start gap-3 py-3 px-2 hover:bg-surface-container-low rounded-lg transition-colors">
+                <Link href={`/artist/${e.handle}`} onClick={(ev) => ev.stopPropagation()} className="relative shrink-0">
                   <span className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: e.bg, color: e.fg }}>{e.initials}</span>
-                  <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${eventBadge(e.type)}`}>
-                    {eventGlyph(e.type, e.giftIcon)}
-                  </span>
-                </div>
+                  <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${eventBadge(e.type)}`}>{eventGlyph(e.type, e.giftIcon)}</span>
+                </Link>
                 <div className="flex-1 min-w-0 pt-0.5">
-                  <p className="text-sm text-on-surface leading-snug">
-                    <span className="font-bold">@{e.handle}</span> <span className="text-on-surface-variant">{e.text}</span>
-                    <span className="text-on-surface-variant"> · {e.time}</span>
-                  </p>
-                  {e.preview && <p className="text-xs text-on-surface-variant mt-1 truncate italic">{e.preview}</p>}
+                  <p className="text-sm text-on-surface leading-snug"><Link href={`/artist/${e.handle}`} onClick={(ev) => ev.stopPropagation()} className="font-bold">@{e.handle}</Link> <span className="text-on-surface-variant">{e.text}</span> <span className="text-on-surface-variant">· {e.time}</span></p>
+                  {e.preview ? <p className="text-xs text-on-surface-variant mt-1 truncate italic">{e.preview}</p> : null}
                 </div>
-                {e.type === "follow" && (
-                  <button onClick={(ev) => ev.preventDefault()} className="label-caps text-[10px] bg-primary text-white px-3 py-1.5 rounded-full shrink-0">FOLLOW</button>
-                )}
+                {e.type === "follow" ? <button onClick={(ev) => ev.preventDefault()} className="label-caps text-[10px] bg-primary text-white px-3 py-1.5 rounded-full shrink-0">FOLLOW</button> : null}
               </Link>
             ))}
           </div>
@@ -109,7 +100,6 @@ function eventBadge(type: Event["type"]) {
     case "mention": return "bg-primary-fixed-dim text-on-primary-fixed";
   }
 }
-
 function eventGlyph(type: Event["type"], giftIcon?: string) {
   switch (type) {
     case "like": return "♥";

@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Step = "camera" | "picker" | "details" | "success";
+type Duration = "15s" | "60s" | "10min";
 
 export default function PostPage() {
   const [step, setStep] = useState<Step>("camera");
   const router = useRouter();
-
   if (step === "camera") return <CameraView onCaptured={() => setStep("details")} onPickRoll={() => setStep("picker")} />;
   if (step === "picker") return <CameraRoll onPick={() => setStep("details")} onBack={() => setStep("camera")} />;
   if (step === "details") return <DetailsView onBack={() => setStep("camera")} onPost={() => setStep("success")} />;
@@ -20,18 +20,26 @@ function CameraView({ onCaptured, onPickRoll }: { onCaptured: () => void; onPick
   const [elapsed, setElapsed] = useState(0);
   const [facing, setFacing] = useState<"back" | "front">("front");
   const [flash, setFlash] = useState(false);
+  const [duration, setDuration] = useState<Duration>("60s");
+
+  const maxSec = duration === "15s" ? 15 : duration === "60s" ? 60 : 600;
 
   useEffect(() => {
     if (!recording) { setElapsed(0); return; }
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const id = setInterval(() => setElapsed((e) => {
+      if (e + 1 >= maxSec) { setRecording(false); onCaptured(); return 0; }
+      return e + 1;
+    }), 1000);
     return () => clearInterval(id);
-  }, [recording]);
+  }, [recording, maxSec, onCaptured]);
 
   function stopAndContinue() {
     if (elapsed < 1) return;
     setRecording(false);
     onCaptured();
   }
+
+  const progress = Math.min(elapsed / maxSec, 1);
 
   return (
     <main className="fixed inset-0 bg-black overflow-hidden text-white animate-fade-in">
@@ -51,10 +59,12 @@ function CameraView({ onCaptured, onPickRoll }: { onCaptured: () => void; onPick
         <button className="w-12 h-12 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
       </div>
 
-      {recording ? <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-error px-3 py-1 rounded-full flex items-center gap-2"><span className="w-2 h-2 bg-white rounded-full animate-pulse" /><span className="label-caps text-[11px]">REC · {String(Math.floor(elapsed / 60)).padStart(2, "0")}:{String(elapsed % 60).padStart(2, "0")}</span></div> : null}
+      {recording ? <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-error px-3 py-1 rounded-full flex items-center gap-2"><span className="w-2 h-2 bg-white rounded-full animate-pulse" /><span className="label-caps text-[11px]">REC · {String(Math.floor(elapsed / 60)).padStart(2, "0")}:{String(elapsed % 60).padStart(2, "0")} / {duration.toUpperCase()}</span></div> : null}
 
-      <div className="absolute bottom-44 left-0 right-0 flex justify-center gap-6">
-        {["15s", "60s", "10min", "PHOTO"].map((m, i) => <button key={m} className={`label-caps text-[11px] ${i === 0 ? "text-white border-b-2 border-on-tertiary-container pb-1" : "text-white/60"}`}>{m}</button>)}
+      <div className="absolute bottom-40 left-0 right-0 flex justify-center gap-4">
+        {(["15s", "60s", "10min"] as Duration[]).map((m) => (
+          <button key={m} onClick={() => !recording && setDuration(m)} disabled={recording} className={`label-caps text-[11px] transition-all px-3 py-1 ${duration === m ? "text-white border-b-2 border-on-tertiary-container pb-1.5" : "text-white/50"} ${recording ? "opacity-40 cursor-not-allowed" : ""}`}>{m.toUpperCase()}</button>
+        ))}
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 pb-8 pt-4 px-6 z-30 bg-gradient-to-t from-black/70 to-transparent">
@@ -63,10 +73,13 @@ function CameraView({ onCaptured, onPickRoll }: { onCaptured: () => void; onPick
             <div className="w-14 h-14 rounded-xl border-2 border-white/60 bg-gradient-to-br from-secondary to-tertiary flex items-center justify-center"><svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
             <span className="label-caps text-[9px]">CAMERA ROLL</span>
           </button>
+
           <button onClick={() => recording ? stopAndContinue() : setRecording(true)} className="relative active:scale-95">
-            <span className={`absolute inset-0 rounded-full ${recording ? "border-4 border-error" : "border-4 border-white"} -m-2`} />
+            {recording ? <svg className="absolute -inset-2 -m-2 w-24 h-24 -rotate-90 pointer-events-none" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/><circle cx="50" cy="50" r="46" fill="none" stroke="#fa5c1b" strokeWidth="4" strokeDasharray={`${progress * 289} 289`} strokeLinecap="round" /></svg> : null}
+            <span className={`absolute inset-0 rounded-full ${recording ? "border-0" : "border-4 border-white"} -m-2`} />
             <span className={`block transition-all ${recording ? "w-10 h-10 rounded-lg bg-error" : "w-20 h-20 rounded-full bg-error"}`} />
           </button>
+
           <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
             <div className="w-14 h-14 rounded-xl glass flex items-center justify-center"><svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
             <span className="label-caps text-[9px]">SOUNDS</span>
@@ -78,30 +91,28 @@ function CameraView({ onCaptured, onPickRoll }: { onCaptured: () => void; onPick
 }
 
 function CameraRoll({ onPick, onBack }: { onPick: () => void; onBack: () => void }) {
-  const cells = Array.from({ length: 24 });
+  const cells = Array.from({ length: 27 });
   return (
     <main className="min-h-screen bg-black text-white animate-fade-in">
       <header className="sticky top-0 z-40 bg-black/90 backdrop-blur-lg">
         <div className="flex items-center gap-3 px-5 py-4 max-w-md mx-auto">
           <button onClick={onBack} className="text-white"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-          <h1 className="font-display font-bold text-xl">All photos</h1>
+          <h1 className="font-display font-bold text-xl">All videos</h1>
           <button className="ml-auto label-caps text-[10px] text-white/60">ALBUMS</button>
         </div>
         <div className="px-5 pb-3 flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {["RECENTS", "VIDEOS", "FAVORITES", "SCREENSHOTS", "LIVE"].map((tag, i) => (
+          {["RECENTS", "VIDEOS ONLY", "FAVORITES", "SCREEN REC"].map((tag, i) => (
             <button key={tag} className={`label-caps text-[9px] px-3 py-1.5 rounded-full whitespace-nowrap ${i === 0 ? "bg-white text-black" : "bg-white/10 text-white/70"}`}>{tag}</button>
           ))}
         </div>
       </header>
-
       <div className="grid grid-cols-3 gap-0.5 max-w-md mx-auto pb-32">
         {cells.map((_, i) => {
           const grads = ["from-tertiary-container to-on-tertiary-container","from-primary to-tertiary","from-secondary to-tertiary-fixed-dim","from-primary-container to-tertiary-container","from-on-tertiary-container to-tertiary","from-primary to-primary-fixed-dim","from-tertiary to-secondary","from-tertiary-fixed-dim to-on-tertiary-container","from-primary-container to-primary"];
-          const isVid = i % 3 === 0;
           return (
             <button key={i} onClick={onPick} className={`aspect-square bg-gradient-to-br ${grads[i % grads.length]} relative active:opacity-70 transition-opacity`}>
-              {isVid ? <span className="absolute top-1 right-1.5 label-caps text-[8px] bg-black/50 text-white px-1 rounded">{Math.floor(Math.random() * 50 + 5)}s</span> : null}
-              {isVid ? <span className="absolute bottom-1 right-1.5 text-white/80"><svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span> : null}
+              <span className="absolute top-1 right-1.5 label-caps text-[8px] bg-black/50 text-white px-1 rounded">{Math.floor(15 + (i * 7) % 50)}s</span>
+              <span className="absolute bottom-1 right-1.5 text-white/80"><svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
             </button>
           );
         })}
